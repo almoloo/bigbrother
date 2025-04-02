@@ -42,6 +42,7 @@ export default function VisitPage({
       try {
         const ipReq = await fetch("https://ipinfo.io/json");
         const ipReqJSON = await ipReq.json();
+        console.log(ipReqJSON);
         setIpInfo({
           city: ipReqJSON.city,
           country: ipReqJSON.country,
