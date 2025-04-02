@@ -11,7 +11,7 @@ interface IPInfo {
   lng: number;
 }
 
-const provider = createClientUPProvider();
+const provider = window ? createClientUPProvider() : null;
 
 export default function VisitPage({
   params,
@@ -48,12 +48,15 @@ export default function VisitPage({
           lat: parseFloat(ipReqJSON.split(",")[0]),
           lng: parseFloat(ipReqJSON.split(",")[1]),
         });
-        const _accounts = provider.accounts as Array<`0x${string}`>;
-        setAccounts(_accounts);
 
-        const _contextAccounts =
-          provider.contextAccounts as Array<`0x${string}`>;
-        updateConnected(_accounts, _contextAccounts);
+        if (provider) {
+          const _accounts = provider.accounts as Array<`0x${string}`>;
+          setAccounts(_accounts);
+
+          const _contextAccounts =
+            provider.contextAccounts as Array<`0x${string}`>;
+          updateConnected(_accounts, _contextAccounts);
+        }
       } catch (err) {
         console.error("Failed to init provider: ", err);
       }
@@ -69,18 +72,21 @@ export default function VisitPage({
       updateConnected(accounts, _accounts);
     };
 
+    init();
+
     if (provider) {
-      init();
-    } else {
-      console.error("THERE IS NO PROVIDER!");
+      provider.on("accountsChanged", accountsChanged);
+      provider.on("contextAccountsChanged", contextAccountsChanged);
     }
 
-    provider.on("accountsChanged", accountsChanged);
-    provider.on("contextAccountsChanged", contextAccountsChanged);
-
     return () => {
-      provider.removeListener("accountsChanged", accountsChanged);
-      provider.removeListener("contextAccountsChanged", contextAccountsChanged);
+      if (provider) {
+        provider.removeListener("accountsChanged", accountsChanged);
+        provider.removeListener(
+          "contextAccountsChanged",
+          contextAccountsChanged
+        );
+      }
     };
   }, [accounts[0], contextAccounts[0], updateConnected]);
 
