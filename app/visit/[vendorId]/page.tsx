@@ -36,22 +36,19 @@ export default function VisitPage({
     []
   );
 
-  const updateIpInfo = useCallback((info: IPInfo) => {
-    setIpInfo(info);
-  }, []);
-
   useEffect(() => {
     provider = createClientUPProvider();
     async function init() {
       try {
         const ipReq = await fetch("https://ipinfo.io/json");
-        const ipReqJSON = await ipReq.json();
-        updateIpInfo({
-          city: ipReqJSON.city,
-          country: ipReqJSON.country,
-          region: ipReqJSON.region,
-          lat: parseFloat(ipReqJSON.split(",")[0]),
-          lng: parseFloat(ipReqJSON.split(",")[1]),
+        ipReq.json().then((json) => {
+          setIpInfo({
+            city: json.city,
+            country: json.country,
+            region: json.region,
+            lat: parseFloat(json.split(",")[0]),
+            lng: parseFloat(json.split(",")[1]),
+          });
         });
 
         if (provider) {
