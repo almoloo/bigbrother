@@ -88,6 +88,6 @@ model VisitorRecord {
   deviceInfo_operatingSystem     String?
   deviceInfo_browser             String?
   deviceInfo_screenResolution    String?
-  visitTimestamp                 DateTime
+  visitTimestamp                 DateTime         @default(now())
   profileAnalytics               ProfileAnalytics @relation(fields: [profileAnalyticsAddress], references: [universalProfileAddress])
 }
