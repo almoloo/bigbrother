@@ -13,6 +13,28 @@ interface IPInfo {
 
 // let provider: UPClientProvider | null = null;
 
+// FETCH IP ADDRESS
+const fetchIpInfo = async () => {
+  try {
+    const ipReq = await fetch("https://ipinfo.io/json");
+    if (!ipReq.ok) {
+      throw new Error("Failed!");
+    }
+    const ipJSON = await ipReq.json();
+    console.log("ip info: ", ipJSON);
+    return {
+      city: ipJSON.city,
+      country: ipJSON.country,
+      region: ipJSON.region,
+      lat: parseFloat(ipJSON.split(",")[0]),
+      lng: parseFloat(ipJSON.split(",")[1]),
+    };
+  } catch (error) {
+    console.error("Error while fetching ip info: ", error);
+    return null;
+  }
+};
+
 export default function VisitPage({
   params,
 }: {
@@ -92,28 +114,11 @@ export default function VisitPage({
   // };
   //   }, [accounts[0], contextAccounts[0], updateConnected]);
 
-  // FETCH IP ADDRESS
   useEffect(() => {
-    const fetchIpInfo = async () => {
-      try {
-        const ipReq = await fetch("https://ipinfo.io/json");
-        if (!ipReq.ok) {
-          throw new Error("Failed!");
-        }
-        const ipJSON = await ipReq.json();
-        console.log("ip info: ", ipJSON);
-        setIpInfo({
-          city: ipJSON.city,
-          country: ipJSON.country,
-          region: ipJSON.region,
-          lat: parseFloat(ipJSON.split(",")[0]),
-          lng: parseFloat(ipJSON.split(",")[1]),
-        });
-      } catch (error) {
-        console.error("Error while fetching ip info: ", error);
-      }
+    const init = async () => {
+      setIpInfo(await fetchIpInfo());
     };
-    fetchIpInfo();
+    init();
   }, []);
 
   return (
@@ -124,7 +129,7 @@ export default function VisitPage({
         </div> */}
       {/* {contextAccounts[0]}] */}
       <div>
-        <code>{JSON.stringify(ipInfo)}</code>
+        <code>{ipInfo?.country}</code>
       </div>
     </div>
   );
