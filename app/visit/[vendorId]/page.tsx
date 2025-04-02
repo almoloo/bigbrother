@@ -1,7 +1,7 @@
 "use client";
 
 import { createClientUPProvider, UPClientProvider } from "@lukso/up-provider";
-import { use, useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 
 export default function VisitPage({
   params,
@@ -28,13 +28,11 @@ export default function VisitPage({
     []
   );
 
-  useLayoutEffect(() => {
-    provider = createClientUPProvider();
-  });
-
   useEffect(() => {
     async function init() {
       try {
+        provider = createClientUPProvider();
+
         const _accounts = provider?.accounts as Array<`0x${string}`>;
         setAccounts(_accounts);
 
@@ -76,8 +74,8 @@ export default function VisitPage({
 
   return (
     <div>
-      VisitPage - {vendorId} - [account: {JSON.stringify(accounts)}] - [context:{" "}
-      {JSON.stringify(contextAccounts)}]
+      VisitPage - {vendorId} - [account: {accounts[0]}] - [context:{" "}
+      {contextAccounts[0]}]
     </div>
   );
 }
