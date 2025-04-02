@@ -1,7 +1,7 @@
 "use client";
 
 import { createClientUPProvider, UPClientProvider } from "@lukso/up-provider";
-import { use, useEffect, useLayoutEffect, useState } from "react";
+import { use, useCallback, useEffect, useLayoutEffect, useState } from "react";
 
 export default function VisitPage({
   params,
@@ -14,8 +14,19 @@ export default function VisitPage({
   const [contextAccounts, setContextAccounts] = useState<Array<`0x${string}`>>(
     []
   );
+  const [profileConnected, setProfileConnected] = useState(false);
 
   let provider: UPClientProvider | null = null;
+
+  const updateConnected = useCallback(
+    (
+      _accounts: Array<`0x${string}`>,
+      _contextAccounts: Array<`0x${string}`>
+    ) => {
+      setProfileConnected(_accounts.length > 0 && _contextAccounts.length > 0);
+    },
+    []
+  );
 
   useLayoutEffect(() => {
     provider = createClientUPProvider();
@@ -29,16 +40,39 @@ export default function VisitPage({
 
         const _contextAccounts =
           provider?.contextAccounts as Array<`0x${string}`>;
-        setContextAccounts(_contextAccounts);
+        updateConnected(_accounts, _contextAccounts);
       } catch (err) {
         console.error("Failed to init provider: ", err);
       }
     }
 
+    const accountsChanged = (_accounts: Array<`0x${string}`>) => {
+      setAccounts(_accounts);
+      updateConnected(_accounts, contextAccounts);
+    };
+
+    const contextAccountsChanged = (_accounts: Array<`0x${string}`>) => {
+      setContextAccounts(_accounts);
+      updateConnected(accounts, _accounts);
+    };
+
     if (provider) {
       init();
+    } else {
+      console.error("THERE IS NO PROVIDER!");
     }
-  }, [accounts[0], contextAccounts[0]]);
+
+    provider?.on("accountsChanged", accountsChanged);
+    provider?.on("contextAccountsChanged", contextAccountsChanged);
+
+    return () => {
+      provider?.removeListener("accountsChanged", accountsChanged);
+      provider?.removeListener(
+        "contextAccountsChanged",
+        contextAccountsChanged
+      );
+    };
+  }, [accounts[0], contextAccounts[0], updateConnected]);
 
   return (
     <div>
