@@ -95,15 +95,23 @@ export default function VisitPage({
   // FETCH IP ADDRESS
   useEffect(() => {
     const fetchIpInfo = async () => {
-      const ipReq = await fetch("https://ipinfo.io/json");
-      const ipJSON = await ipReq.json();
-      setIpInfo({
-        city: ipJSON.city,
-        country: ipJSON.country,
-        region: ipJSON.region,
-        lat: parseFloat(ipJSON.split(",")[0]),
-        lng: parseFloat(ipJSON.split(",")[1]),
-      });
+      try {
+        const ipReq = await fetch("https://ipinfo.io/json");
+        if (!ipReq.ok) {
+          throw new Error("Failed!");
+        }
+        const ipJSON = await ipReq.json();
+        console.log("ip info: ", ipJSON);
+        setIpInfo({
+          city: ipJSON.city,
+          country: ipJSON.country,
+          region: ipJSON.region,
+          lat: parseFloat(ipJSON.split(",")[0]),
+          lng: parseFloat(ipJSON.split(",")[1]),
+        });
+      } catch (error) {
+        console.error("Error while fetching ip info: ", error);
+      }
     };
     fetchIpInfo();
   }, []);
