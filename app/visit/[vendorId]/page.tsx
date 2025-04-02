@@ -11,7 +11,7 @@ interface IPInfo {
   lng: number;
 }
 
-const provider = window ? createClientUPProvider() : null;
+let provider: UPClientProvider | null = null;
 
 export default function VisitPage({
   params,
@@ -37,6 +37,7 @@ export default function VisitPage({
   );
 
   useEffect(() => {
+    provider = createClientUPProvider();
     async function init() {
       try {
         const ipReq = await fetch("https://ipinfo.io/json");
