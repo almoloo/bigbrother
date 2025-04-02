@@ -3,6 +3,14 @@
 import { createClientUPProvider, UPClientProvider } from "@lukso/up-provider";
 import { use, useCallback, useEffect, useState } from "react";
 
+interface IPInfo {
+  country: string;
+  city: string;
+  region: string;
+  lat: number;
+  lng: number;
+}
+
 const provider = createClientUPProvider();
 
 export default function VisitPage({
@@ -11,12 +19,12 @@ export default function VisitPage({
   params: Promise<{ vendorId: string }>;
 }) {
   const { vendorId } = use(params);
-  //   const provider = createClientUPProvider();
   const [accounts, setAccounts] = useState<Array<`0x${string}`>>([]);
   const [contextAccounts, setContextAccounts] = useState<Array<`0x${string}`>>(
     []
   );
   const [profileConnected, setProfileConnected] = useState(false);
+  const [ipInfo, setIpInfo] = useState<IPInfo | null>(null);
 
   const updateConnected = useCallback(
     (
@@ -31,6 +39,15 @@ export default function VisitPage({
   useEffect(() => {
     async function init() {
       try {
+        const ipReq = await fetch("https://ipinfo.io/json");
+        const ipReqJSON = await ipReq.json();
+        setIpInfo({
+          city: ipReqJSON.city,
+          country: ipReqJSON.country,
+          region: ipReqJSON.region,
+          lat: parseFloat(ipReqJSON.split(",")[0]),
+          lng: parseFloat(ipReqJSON.split(",")[1]),
+        });
         const _accounts = provider.accounts as Array<`0x${string}`>;
         setAccounts(_accounts);
 
@@ -71,6 +88,9 @@ export default function VisitPage({
     <div>
       VisitPage - {vendorId} - [account: {accounts[0]}] - [context:{" "}
       {contextAccounts[0]}]
+      <div>
+        <code>{JSON.stringify(ipInfo)}</code>
+      </div>
     </div>
   );
 }
