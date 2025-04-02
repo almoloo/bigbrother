@@ -3,6 +3,8 @@
 import { createClientUPProvider, UPClientProvider } from "@lukso/up-provider";
 import { use, useCallback, useEffect, useState } from "react";
 
+const provider = createClientUPProvider();
+
 export default function VisitPage({
   params,
 }: {
@@ -15,8 +17,6 @@ export default function VisitPage({
     []
   );
   const [profileConnected, setProfileConnected] = useState(false);
-
-  let provider: UPClientProvider | null = null;
 
   const updateConnected = useCallback(
     (
@@ -31,13 +31,11 @@ export default function VisitPage({
   useEffect(() => {
     async function init() {
       try {
-        provider = createClientUPProvider();
-
-        const _accounts = provider?.accounts as Array<`0x${string}`>;
+        const _accounts = provider.accounts as Array<`0x${string}`>;
         setAccounts(_accounts);
 
         const _contextAccounts =
-          provider?.contextAccounts as Array<`0x${string}`>;
+          provider.contextAccounts as Array<`0x${string}`>;
         updateConnected(_accounts, _contextAccounts);
       } catch (err) {
         console.error("Failed to init provider: ", err);
@@ -60,15 +58,12 @@ export default function VisitPage({
       console.error("THERE IS NO PROVIDER!");
     }
 
-    provider?.on("accountsChanged", accountsChanged);
-    provider?.on("contextAccountsChanged", contextAccountsChanged);
+    provider.on("accountsChanged", accountsChanged);
+    provider.on("contextAccountsChanged", contextAccountsChanged);
 
     return () => {
-      provider?.removeListener("accountsChanged", accountsChanged);
-      provider?.removeListener(
-        "contextAccountsChanged",
-        contextAccountsChanged
-      );
+      provider.removeListener("accountsChanged", accountsChanged);
+      provider.removeListener("contextAccountsChanged", contextAccountsChanged);
     };
   }, [accounts[0], contextAccounts[0], updateConnected]);
 
