@@ -3,8 +3,6 @@
 import { createClientUPProvider, UPClientProvider } from "@lukso/up-provider";
 import { use, useCallback, useEffect, useState } from "react";
 
-let provider: UPClientProvider | null = null;
-
 export default function VisitPage({
   params,
 }: {
@@ -17,6 +15,8 @@ export default function VisitPage({
     []
   );
   const [profileConnected, setProfileConnected] = useState(false);
+
+  let provider: UPClientProvider | null = null;
 
   const updateConnected = useCallback(
     (
